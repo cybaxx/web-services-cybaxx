@@ -1,3 +1,4 @@
+<<<<<<< HEAD
 [submodule "services/blog"]
 	path = services/blog
 	url = git@github.com:wetfish/blog.git
@@ -25,3 +26,14 @@
 [submodule "services/home"]
 	path = services/home
 	url = https://github.com/wetfish/wetfish.net
+=======
+[submodule "services/wiki"]
+	path = services/wiki-staging
+	url = git@github.com:wetfish/wiki.git
+[submodule "services/online"]
+	path = services/online-staging
+	url = git@github.com:wetfish/online.git
+[submodule "services/home-staging"]
+	path = services/home-staging
+	url = git@github.com:/wetfish/wetfish.net
+>>>>>>> staging

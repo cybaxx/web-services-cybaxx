@@ -9,7 +9,7 @@ cd "$SCRIPT_DIR" || exit
 
 # dir with compose file
 # relative to this dir
-PROJECT_DIRS=("traefik" "services/home" "services/click" "services/danger" "services/glitch" "services/online" "services/wiki")
+PROJECT_DIRS=("services/home-staging" "services/online-staging" "services/wiki-staging")
 
 # ensure they provided a subcommand
 if [ $# -eq 0 ]
@@ -30,15 +30,15 @@ fi
 case $1 in
   "down")
     for DIR in "${PROJECT_DIRS[@]}"; do
-      echo "About to run \"docker compose down\" in ${DIR}"
-      cd "${SCRIPT_DIR}/${DIR}" && docker compose down || exit
+      echo "About to run \"docker compose -f docker-compose.staging.yml down\" in ${DIR}"
+      cd "${SCRIPT_DIR}/${DIR}" && docker compose -f docker-compose.staging.yml down || exit
     done
   ;;
 
   "up")
     for DIR in "${PROJECT_DIRS[@]}"; do
-      echo "About to run \"docker compose up -d --force-recreate\" in ${DIR}"
-      cd "${SCRIPT_DIR}/${DIR}" && docker compose up -d --force-recreate || exit
+      echo "About to run \"docker compose -f docker-compose.staging.yml up -d --force-recreate\" in ${DIR}"
+      cd "${SCRIPT_DIR}/${DIR}" && docker compose -f docker-compose.staging.yml up -d --force-recreate || exit
     done
   ;;
 esac
