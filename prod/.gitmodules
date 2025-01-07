@@ -1,0 +1,27 @@
+[submodule "services/blog"]
+	path = services/blog
+	url = git@github.com:wetfish/blog.git
+	branch = release
+[submodule "services/click"]
+	path = services/click
+	url = git@github.com:wetfish/click.git
+	branch = release
+[submodule "services/danger"]
+	path = services/danger
+	url = git@github.com:wetfish/danger.git
+	branch = release
+[submodule "services/glitch"]
+	path = services/glitch
+	url = git@github.com:wetfish/glitch.git
+	branch = release
+[submodule "services/online"]
+	path = services/online
+	url = git@github.com:wetfish/online.git
+	branch = release
+[submodule "services/wiki"]
+	path = services/wiki
+	url = git@github.com:wetfish/wiki.git
+	branch = release
+[submodule "services/home"]
+	path = services/home
+	url = https://github.com/wetfish/wetfish.net
