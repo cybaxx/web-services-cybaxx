@@ -1,39 +1,39 @@
-<<<<<<< HEAD
-[submodule "services/blog"]
-	path = services/blog
+# PROD MODULES
+[submodule "prod/services/blog"]
+	path = prod/services/blog
 	url = git@github.com:wetfish/blog.git
 	branch = release
-[submodule "services/click"]
-	path = services/click
+[submodule "prod/services/click"]
+	path = sprod/services/click
 	url = git@github.com:wetfish/click.git
 	branch = release
-[submodule "services/danger"]
-	path = services/danger
+[submodule "prod/services/danger"]
+	path = prod/services/danger
 	url = git@github.com:wetfish/danger.git
 	branch = release
-[submodule "services/glitch"]
-	path = services/glitch
+[submodule "prod/services/glitch"]
+	path = prod/services/glitch
 	url = git@github.com:wetfish/glitch.git
 	branch = release
-[submodule "services/online"]
-	path = services/online
+[submodule "prod/services/online"]
+	path = prod/services/online
 	url = git@github.com:wetfish/online.git
 	branch = release
-[submodule "services/wiki"]
-	path = services/wiki
+[submodule "prod/services/wiki"]
+	path = prod/services/wiki
 	url = git@github.com:wetfish/wiki.git
 	branch = release
-[submodule "services/home"]
-	path = services/home
+[submodule "prod/services/home"]
+	path = prod/services/home
 	url = https://github.com/wetfish/wetfish.net
-=======
-[submodule "services/wiki"]
-	path = services/wiki-staging
+
+# STAGE MODULES
+[submodule "stage/services/wiki"]
+	path = stage/services/wiki-staging
 	url = git@github.com:wetfish/wiki.git
-[submodule "services/online"]
-	path = services/online-staging
+[submodule "stage/services/online"]
+	path = stage/services/online-staging
 	url = git@github.com:wetfish/online.git
-[submodule "services/home-staging"]
-	path = services/home-staging
+[submodule "stage/services/home-staging"]
+	path = stage/services/home-staging
 	url = git@github.com:/wetfish/wetfish.net
->>>>>>> staging
