@@ -1,5 +1,3 @@
-<<<<<<< Updated upstream
-=======
 # production-manifests
 contains traefik config and submodules for docker compose based deployments
 
@@ -56,4 +54,3 @@ services/online/storage
 services/wiki/db
 services/wiki/upload # mounted over nfs to storage server
 ```
->>>>>>> Stashed changes
