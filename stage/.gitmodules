@@ -1,9 +1,0 @@
-[submodule "services/wiki"]
-	path = services/wiki-staging
-	url = git@github.com:wetfish/wiki.git
-[submodule "services/online"]
-	path = services/online-staging
-	url = git@github.com:wetfish/online.git
-[submodule "services/home-staging"]
-	path = services/home-staging
-	url = git@github.com:/wetfish/wetfish.net
