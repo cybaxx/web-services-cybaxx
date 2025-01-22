@@ -15,7 +15,7 @@ export_secrets() {
   export LOGIN_PASSWORD_WIKI=$(generate_random_sha512)
   export ADMIN_PASSWORD_WIKI=$(generate_random_sha512)
   export BAN_PASSWORD_WIKI=$(generate_random_sha512)
-  export SITE_URL="wiki.example.com"  # Update with your actual URL
+  export SITE_URL="wiki.wetfish.net"  # Update with your actual URL
   export ALLOWED_EMBEDS="/^.*\\.example\\.com$/i"
 }
 
