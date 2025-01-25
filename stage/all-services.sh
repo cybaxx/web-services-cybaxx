@@ -41,10 +41,10 @@ generate_configs() {
 # Replace variables directly in .env files
 update_env_files() {
   local files=(
-    './services/wiki/php.env'
-    './services/wiki/mariadb.env'
-    './services/online/php.env'
-    './services/online/mariadb.env'
+    './services/wiki-staging/php.env'
+    './services/wiki-staging/mariadb.env'
+    './services/online-staging/php.env'
+    './services/online-staging/mariadb.env'
   )
 
   for file in "${files[@]}"; do
