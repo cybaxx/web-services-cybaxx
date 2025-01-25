@@ -79,6 +79,11 @@ update_env_files() {
   done
 }
 
+# Configure Traefik environment file
+config_traefik() {
+  cp ./traefik/traefik.env.example ./traefik/traefik.env
+}
+
 # Change to the script's directory
 set_script_dir() {
   local dirname
@@ -90,16 +95,17 @@ set_script_dir() {
 # Check Docker Compose version
 check_docker_compose() {
   if ! docker compose version &>/dev/null; then
-    echo "Error: Newer type of docker compose plugin not found"
+    echo "Error: Newer type of Docker Compose plugin not found"
     exit 2
   fi
 }
 
 # Run Docker Compose commands
 run_docker_compose() {
+  local action="$1"
   local project_dirs=("traefik" "services/home" "services/click" "services/danger" "services/glitch" "services/online" "services/wiki")
 
-  case $1 in
+  case "$action" in
     "down")
       for dir in "${project_dirs[@]}"; do
         echo "Running \"docker compose down\" in ${dir}"
@@ -108,7 +114,6 @@ run_docker_compose() {
         }
       done
       ;;
-
     "up")
       for dir in "${project_dirs[@]}"; do
         echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
@@ -117,10 +122,9 @@ run_docker_compose() {
         }
       done
       ;;
-
     *)
-      echo "Error: Must specify action to take"
-      echo "Error: [up / down]"
+      echo "Error: Invalid action '$action'. Allowed values are 'up' or 'down'."
+      echo "Usage: $0 [up | down]"
       exit 1
       ;;
   esac
@@ -128,12 +132,29 @@ run_docker_compose() {
 
 # Main script execution
 main() {
+  # Ensure an action argument is passed
+  if [[ $# -eq 0 ]]; then
+    echo "Error: No action specified. Please provide 'up' or 'down'."
+    echo "Usage: $0 [up | down]"
+    exit 1
+  fi
+
+  # Validate the action argument
+  local action="$1"
+  if [[ "$action" != "up" && "$action" != "down" ]]; then
+    echo "Error: Invalid action '$action'. Allowed values are 'up' or 'down'."
+    echo "Usage: $0 [up | down]"
+    exit 1
+  fi
+
+  # Proceed with the script tasks
   export_secrets
   generate_configs
   update_env_files
+  config_traefik
   set_script_dir
   check_docker_compose
-  run_docker_compose "$1"
+  run_docker_compose "$action"
 }
 
 main "$@"
