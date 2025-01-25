@@ -1,22 +1,5 @@
-# traefik "dynamic" config
-
-# development env setup
-# so no tls anything
 http:
   routers:
-    # wetfish.net - Wetfish Home Page
-    wetfish-home:
-      entrypoints:
-        - "websecure"
-      rule: "Host(`wetfish.net`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "wetfish-home"
-
     # staging.wetfish.net - Wetfish Home Page
     staging-wetfish-home:
       entrypoints:
@@ -29,32 +12,6 @@ http:
       middlewares:
         - "ipwhitelist-cloudflare"
       service: "staging-wetfish-home"
-
-    # danger.wetfish.net
-    danger:
-      entrypoints:
-       - "websecure"
-      rule: "Host(`danger.wetfish.net`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "danger"
-
-    # wetfishonline.com
-    online:
-      entrypoints:
-        - "websecure"
-      rule: "Host(`wetfishonline.com`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "online"
 
     # staging-forums.wetfish.net
     online-staging:
@@ -69,46 +26,7 @@ http:
         - "ipwhitelist-cloudflare"
       service: "online-staging"
 
-    # glitch.wetfish.net
-    glitch:
-      entrypoints:
-        - "websecure"
-      rule: "Host(`glitch.wetfish.net`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "glitch"
-
-    # click.wetfish.net
-    click:
-      entrypoints:
-        - "websecure"
-      rule: "Host(`click.wetfish.net`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "click"
-
-    # wiki.wetfish.net
-    wiki:
-      entrypoints:
-        - "websecure"
-      rule: "Host(`wiki.wetfish.net`)"
-      tls:
-        certResolver: letsencrypt
-        options:
-          - mintlsversion
-      middlewares:
-        - "ipwhitelist-cloudflare"
-      service: "wiki"
-
-    # wiki.wetfish.net
+    # staging-wiki.wetfish.net
     wiki-staging:
       entrypoints:
         - "websecure"
@@ -122,64 +40,23 @@ http:
       service: "wiki-staging"
 
   services:
-    wetfish-home:
-      loadBalancer:
-        servers:
-          # "container_name: wetfish-home" in wetfish.net compose stack
-          - url: "http://wetfish-home.:80"
-
     staging-wetfish-home:
       loadBalancer:
         servers:
-          # "container_name: staging-wetfish-home" in wetfish.net compose stack
           - url: "http://staging-wetfish-home.:80"
-
-    danger:
-      loadBalancer:
-        servers:
-          # "container_name: danger-web" in danger compose stack
-          - url: "http://danger-web.:80"
-
-    online:
-      loadBalancer:
-        servers:
-          # "container_name: online-web" in online compose stack
-          - url: "http://online-web.:80"
 
     online-staging:
       loadBalancer:
         servers:
-          # "container_name: online-staging-web" in online compose stack
           - url: "http://online-staging-web.:80"
-
-    glitch:
-      loadBalancer:
-        servers:
-          # "container_name: glitch-web" in glitch compose stack
-          - url: "http://glitch-web.:80"
-
-    click:
-      loadBalancer:
-        servers:
-          # "container_name: click-web" in click compose stack
-          - url: "http://click-web.:80"
-
-    wiki:
-      loadBalancer:
-        servers:
-          # "container_name: wiki-web" in wiki compose stack
-          - url: "http://wiki-web.:80"
 
     wiki-staging:
       loadBalancer:
         servers:
-          # "container_name: wiki-staging-web" in wiki compose stack
           - url: "http://wiki-staging-web.:80"
 
   middlewares:
     ipwhitelist-cloudflare:
-      # only allow connections from cloudflare origin pull servers
-      # https://www.cloudflare.com/ips-v4
       ipWhiteList:
         sourceRange:
           - 103.21.244.0/22
@@ -203,11 +80,9 @@ tls:
     mintlsversion:
       minVersion: VersionTLS12
       cipherSuites:
-       # Recommended ciphers for TLSv1.2
-       - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
-       - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
-       - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
-       # Recommended ciphers for TLSv1.3
-       - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
-       - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
-       - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_RSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_RSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_RSA_WITH_CHACHA20_POLY1305
+        - TLS_ECDHE_ECDSA_WITH_AES_256_GCM_SHA384
+        - TLS_ECDHE_ECDSA_WITH_AES_128_GCM_SHA256
+        - TLS_ECDHE_ECDSA_WITH_CHACHA20_POLY1305
