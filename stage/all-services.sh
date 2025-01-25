@@ -22,10 +22,10 @@ export_secrets() {
 # Generate configuration files from templates
 generate_configs() {
   local files=(
-    './services/wiki/php.env.example'
-    './services/wiki/mariadb.env.example'
-    './services/online/php.env.example'
-    './services/online/mariadb.env.example'
+    './services/wiki-staging/php.env.example'
+    './services/wiki-staging/mariadb.env.example'
+    './services/online-staging/php.env.example'
+    './services/online-staging/mariadb.env.example'
   )
 
   for file in "${files[@]}"; do
