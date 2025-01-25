@@ -1,9 +1,10 @@
-# traefik "static" config
+# Traefik Static Configuration
 
-# development env setup
-# so no tls anything
+# Development environment setup
+# No TLS in this environment
 log:
   level: INFO
+
 entryPoints:
   web:
     address: ":80"
@@ -16,20 +17,20 @@ entryPoints:
   websecure:
     address: ":443"
     http:
-      tls: {}
-      # not 100% if this stanza is required for LE to do the thing properly
-      #   domains:
-      #     - main: wetfish.net
-      #     - main: danger.wetfish.net
-      #     - main: wetfishonline.com
-      #     - main: glitch.wetfish.net
-      #     - main: click.wetfish.net
-      #     - main: wiki.wetfish.net
-      #     - main: staging.wetfish.net
-      #     - main: staging-wiki.wetfish.net
-      #     - main: staging-forums.wetfish.net
+      tls:
+        # Uncomment and configure domains for Let's Encrypt if needed
+        # domains:
+        #   - main: wetfish.net
+        #   - main: danger.wetfish.net
+        #   - main: wetfishonline.com
+        #   - main: glitch.wetfish.net
+        #   - main: click.wetfish.net
+        #   - main: wiki.wetfish.net
+        - main: staging.wetfish.net
+        - main: staging-wiki.wetfish.net
+        - main: staging-forums.wetfish.net
 
-# dynamic config
+# Dynamic Configuration
 providers:
   file:
     directory: "/etc/traefik/dynamic"
@@ -44,7 +45,6 @@ certificatesResolvers:
       httpChallenge:
         entryPoint: web
 
-
 accessLog:
   filePath: "/var/log/traefik/access.log"
   format: json
@@ -55,6 +55,6 @@ accessLog:
     headers:
       defaultMode: keep
       names:
-          User-Agent: keep
-          Authorization: drop
-          Content-Type: keep
+        User-Agent: keep
+        Authorization: drop
+        Content-Type: keep
