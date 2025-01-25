@@ -109,7 +109,7 @@ run_docker_compose() {
     "up")
       for dir in "${project_dirs[@]}"; do
         echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate || {
+        cd "${SCRIPT_DIR}/${dir}" && docker compose -f docker-compose.staging.yml -d --force-recreate || {
           echo "Failed to start the service in $dir. Continuing..."
         }
       done
