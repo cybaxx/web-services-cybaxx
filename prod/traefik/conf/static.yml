@@ -1,9 +1,6 @@
-# traefik "static" config
-
-# development env setup
-# so no tls anything
 log:
   level: INFO
+
 entryPoints:
   web:
     address: ":80"
@@ -17,24 +14,12 @@ entryPoints:
     address: ":443"
     http:
       tls:
-        # not 100% if this stanza is required for LE to do the thing properly
-        #   domains:
-        - main: wetfish.net
-        - main: danger.wetfish.net
-        - main: wetfishonline.com
-        - main: glitch.wetfish.net
-        - main: click.wetfish.net
-        - main: wiki.wetfish.net
-      #     - main: staging.wetfish.net
-      #     - main: staging-wiki.wetfish.net
-      #     - main: staging-forums.wetfish.net
+        certResolver: letsencrypt
 
-# dynamic config
 providers:
   file:
     directory: "/etc/traefik/dynamic"
     watch: true
-    debugLogGeneratedTemplate: true
 
 certificatesResolvers:
   letsencrypt:
