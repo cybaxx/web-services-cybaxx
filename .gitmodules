@@ -35,7 +35,7 @@
 [submodule "stage/services/online"]
     path = stage/services/online-staging
     url = git@github.com:wetfish/online.git
-#    branch = stage-testing
+    branch = stage-testing
 [submodule "stage/services/home-staging"]
 	path = stage/services/home-staging
 	url = git@github.com:wetfish/wetfish.net
