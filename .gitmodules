@@ -31,15 +31,12 @@
 [submodule "stage/services/wiki"]
     path = stage/services/wiki-staging
     url = git@github.com:wetfish/wiki.git
+#    branch = stage-testing
 [submodule "stage/services/online"]
     path = stage/services/online-staging
     url = git@github.com:wetfish/online.git
+#    branch = stage-testing
 [submodule "stage/services/home-staging"]
 	path = stage/services/home-staging
 	url = git@github.com:wetfish/wetfish.net
-[submodule "stage/services/wiki-staging"]
-	path = stage/services/wiki-staging
-	url = git@github.com:wetfish/wiki.git
-[submodule "stage/services/online-staging"]
-	path = stage/services/online-staging
-	url = git@github.com:wetfish/online.git
+	branch = stage-testing
