@@ -9,6 +9,7 @@ generate_random_sha512() {
 
 # Export secrets as environment variables
 export_secrets() {
+  export ENV_TAG="staging"
   export MARIADB_ROOT_PASSWORD=$(generate_random_sha512)
   export MARIADB_PASSWORD=$(generate_random_sha512)
   export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
@@ -109,7 +110,7 @@ run_docker_compose() {
     "up")
       for dir in "${project_dirs[@]}"; do
         echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose -f docker-compose.staging.yml up -d --force-recreate || {
+        cd "${SCRIPT_DIR}/${dir}" && docker compose -f docker-compose.yml up -d --force-recreate || {
           echo "Failed to start the service in $dir. Continuing..."
         }
       done

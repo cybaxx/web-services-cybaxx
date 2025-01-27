@@ -9,6 +9,7 @@ generate_random_sha512() {
 
 # Export secrets as environment variables
 export_secrets() {
+  export ENV_TAG="prod"
   export MARIADB_ROOT_PASSWORD=$(generate_random_sha512)
   export MARIADB_PASSWORD=$(generate_random_sha512)
   export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
