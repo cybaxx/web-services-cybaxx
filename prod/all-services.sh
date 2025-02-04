@@ -17,7 +17,7 @@ export_secrets() {
   export ADMIN_PASSWORD_WIKI=$(generate_random_sha512)
   export BAN_PASSWORD_WIKI=$(generate_random_sha512)
   export SITE_URL="wiki.wetfish.net"  # Update with your actual URL
-  export ALLOWED_EMBEDS="/^.*\\.example\\.com$/i"
+  export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
 # Generate configuration files from templates
