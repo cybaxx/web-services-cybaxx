@@ -10,7 +10,7 @@ http:
         options: mintlsversion
       middlewares:
         - "ipwhitelist-cloudflare"
-      service: "staging-wetfish-home"
+      service: "wetfish-home"
 
     # staging-forums.wetfish.net
     online-staging:
@@ -22,7 +22,7 @@ http:
         options: mintlsversion
       middlewares:
         - "ipwhitelist-cloudflare"
-      service: "online-staging"
+      service: "online"
 
     # staging-wiki.wetfish.net
     wiki-staging:
