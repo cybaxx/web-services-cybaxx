@@ -34,7 +34,7 @@ http:
         options: mintlsversion
       middlewares:
         - "ipwhitelist-cloudflare"
-      service: "wiki-staging"
+      service: "wiki"
 
   services:
     staging-wetfish-home:
