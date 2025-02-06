@@ -40,17 +40,17 @@ http:
     wetfish-home:
       loadBalancer:
         servers:
-          - url: "http://staging-wetfish-home:80"
+          - url: "http://wetfish-home:80"
 
     online:
       loadBalancer:
         servers:
-          - url: "http://online-staging-web:80"
+          - url: "http://online-web:80"
 
     wiki:
       loadBalancer:
         servers:
-          - url: "http://wiki-staging-web:80"
+          - url: "http://wiki-web:80"
 
   middlewares:
     ipwhitelist-cloudflare:
