@@ -1,7 +1,7 @@
 http:
   routers:
     # staging.wetfish.net - Wetfish Home Page
-    staging-wetfish-home:
+    wetfish-home:
       entrypoints:
         - "websecure"
       rule: "Host(`staging.wetfish.net`)"
@@ -13,7 +13,7 @@ http:
       service: "wetfish-home"
 
     # staging-forums.wetfish.net
-    online-staging:
+    online:
       entrypoints:
         - "websecure"
       rule: "Host(`staging-forums.wetfish.net`)"
@@ -25,7 +25,7 @@ http:
       service: "online"
 
     # staging-wiki.wetfish.net
-    wiki-staging:
+    wiki:
       entrypoints:
         - "websecure"
       rule: "Host(`staging-wiki.wetfish.net`)"
