@@ -3,19 +3,19 @@
 set -eu
 
 # Generate a random SHA-512 hash
-generate_random_sha512() {
-  head -c 64 /dev/urandom | sha512sum | awk '{print $1}'
+generate_random_pass() {
+  head -c 64 /dev/urandom | pwgen 32 | awk '{print $1}'
 }
 
 # Export secrets as environment variables
 export_secrets() {
   export ENV_TAG="staging"
-  export MARIADB_ROOT_PASSWORD=$(generate_random_sha512)
-  export MARIADB_PASSWORD=$(generate_random_sha512)
+  export MARIADB_ROOT_PASSWORD=$(generate_random_pass)
+  export MARIADB_PASSWORD=$(generate_random_pass)
   export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
-  export LOGIN_PASSWORD_WIKI=$(generate_random_sha512)
-  export ADMIN_PASSWORD_WIKI=$(generate_random_sha512)
-  export BAN_PASSWORD_WIKI=$(generate_random_sha512)
+  export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
+  export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
+  export BAN_PASSWORD_WIKI=$(generate_random_pass)
   export SITE_URL="staging-wiki.wetfish.net"  # Update with your actual URL
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
