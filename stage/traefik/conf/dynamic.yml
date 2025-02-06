@@ -37,17 +37,17 @@ http:
       service: "wiki"
 
   services:
-    staging-wetfish-home:
+    wetfish-home:
       loadBalancer:
         servers:
           - url: "http://staging-wetfish-home:80"
 
-    online-staging:
+    online:
       loadBalancer:
         servers:
           - url: "http://online-staging-web:80"
 
-    wiki-staging:
+    wiki:
       loadBalancer:
         servers:
           - url: "http://wiki-staging-web:80"
