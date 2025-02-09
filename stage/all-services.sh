@@ -4,7 +4,7 @@ set -eu
 
 # Generate a random SHA-512 hash
 generate_random_pass() {
-  pwgen -s 32 1 | awk '{print $1}'
+  pwgen -s 32 1
 }
 
 # Export secrets as environment variables
