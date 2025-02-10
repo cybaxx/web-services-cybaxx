@@ -7,7 +7,6 @@ generate_random_pass() {
   pwgen -s 32 1
 }
 
-# Count service directories
 count_dir() {
     SERVICE_ITEMS=($(ls ./services/))
 }
@@ -24,6 +23,16 @@ export_secrets() {
     # Generate random passwords and declare service-specific variables
     declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
     declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
+  done
+
+  # Dynamically set the shared global variables for all services
+  for item in "${SERVICE_ITEMS[@]}"; do
+    # Replace hyphens with underscores in the service name for the global variable name
+    local service_name="${item//-/_}"
+
+    # Export global variables dynamically for each service
+    export "${service_name^^}_MARIADB_ROOT_PASSWORD"
+    export "${service_name^^}_MARIADB_PASSWORD"
   done
 
   # Export other secrets as needed
@@ -72,12 +81,15 @@ update_env_files() {
 
       # Iterate through service items to replace the placeholders dynamically
       for item in "${SERVICE_ITEMS[@]}"; do
-        # Replace hyphens with underscores in the service name for the global variable name
         local service_name="${item//-/_}"
 
-        # Perform in-place substitution with backup handling
-        sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=${!service_name^^_MARIADB_ROOT_PASSWORD}|" \
-            -e "s|*${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=${!service_name^^_MARIADB_PASSWORD}|" \
+        # Resolve the variables before passing to sed
+        local mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
+        local mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+
+        # Perform in-place substitution with backup handling for service-specific secrets
+        sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" \
+            -e "s|*${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" \
             "$file" > "$tmpfile" && mv "$tmpfile" "$file"
       done
 
@@ -88,7 +100,7 @@ update_env_files() {
           -e "s|*BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
           -e "s|*SITE_URL=.*|SITE_URL=$SITE_URL|" \
           -e "s|*ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
-          "$tmpfile" > "$file" && rm "$tmpfile"
+          "$file" > "$tmpfile" && mv "$tmpfile" "$file"
 
     else
       echo "Warning: .env file $file not found."
