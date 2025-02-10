@@ -4,19 +4,28 @@ set -eu
 
 # Generate a random SHA-512 hash
 generate_random_pass() {
-  pwgen -s 32 1 | awk awk '{print $1}'
+  pwgen -s 32 1
+}
+
+count_dir() {
+    SERVICE_ITEMS=($(ls ./services/))
 }
 
 # Export secrets as environment variables
 export_secrets() {
   export ENV_TAG="staging"
-  export MARIADB_ROOT_PASSWORD=$(generate_random_pass)
-  export MARIADB_PASSWORD=$(generate_random_pass)
+  for item in "${SERVICE_ITEMS[@]}"; do
+    declare -g "${item^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
+    declare -g "${item^^}_MARIADB_PASSWORD=$(generate_random_pass)"
+  done
+  # BELOW COMMENTED OUT TO REPLACE SINGLE USE CREDS WITH PER PROJECT CREDS
+  # export MARIADB_ROOT_PASSWORD=$(generate_random_pass) # need to create struct based on what is currently in services dir
+  # export MARIADB_PASSWORD=$(generate_random_pass)
   export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
   export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
   export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
   export BAN_PASSWORD_WIKI=$(generate_random_pass)
-  export SITE_URL="staging-wiki.wetfish.net"  # Update with your actual URL
+  export SITE_URL="staging-wiki.wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
@@ -56,14 +65,14 @@ update_env_files() {
       tmpfile=$(mktemp)
 
       # Perform in-place substitution with backup handling
-      sed -e "s|MARIADB_ROOT_PASSWORD=.*|MARIADB_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD|" \
-          -e "s|MARIADB_PASSWORD=.*|MARIADB_PASSWORD=$MARIADB_PASSWORD|" \
-          -e "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
-          -e "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
-          -e "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
-          -e "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
-          -e "s|SITE_URL=.*|SITE_URL=$SITE_URL|" \
-          -e "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
+      sed -e "s|*MARIADB_ROOT_PASSWORD=.*|MARIADB_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD|" \
+          -e "s|*MARIADB_PASSWORD=.*|MARIADB_PASSWORD=$MARIADB_PASSWORD|" \
+          -e "s|*DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
+          -e "s|*LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
+          -e "s|*ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
+          -e "s|*BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
+          -e "s|*SITE_URL=.*|SITE_URL=$SITE_URL|" \
+          -e "s|*ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
           "$file" > "$tmpfile" && mv "$tmpfile" "$file"
 
     else
@@ -88,7 +97,7 @@ set_script_dir() {
 # Check Docker Compose version
 check_docker_compose() {
   if ! docker compose version &>/dev/null; then
-    echo "Error: Newer type of Docker Compose plugin not found"
+    echo "Error: Docker Compose is not installed or not found."
     exit 2
   fi
 }
@@ -116,14 +125,16 @@ run_docker_compose() {
       done
       ;;
     "dev-build")
-      for dir in ${project_dirs[@]}; do
-        echo "Running \" docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate --build --no-deps ||{
-            echo "Failed to stte the service in $dir. Continuing..."
+      for dir in "${project_dirs[@]}"; do
+        echo "Running \"docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
+        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate --build --no-deps || {
+          echo "Failed to set the service in $dir. Continuing..."
         }
+      done
+      ;;
     *)
-      echo "Error: Invalid action '$action'. Allowed values are 'up' or 'down'."
-      echo "Usage: $0 [up | down]"
+      echo "Error: Invalid action '$action'. Allowed values are 'up', 'down', or 'dev-build'."
+      echo "Usage: $0 [up | down | dev-build]"
       exit 1
       ;;
   esac
@@ -133,20 +144,21 @@ run_docker_compose() {
 main() {
   # Ensure an action argument is passed
   if [[ $# -eq 0 ]]; then
-    echo "Error: No action specified. Please provide 'up' or 'down'."
-    echo "Usage: $0 [up | down]"
+    echo "Error: No action specified. Please provide 'up', 'down', or 'dev-build'."
+    echo "Usage: $0 [up | down | dev-build]"
     exit 1
   fi
 
   # Validate the action argument
   local action="$1"
-  if [[ "$action" != "up" && "$action" != "down" ]]; then
-    echo "Error: Invalid action '$action'. Allowed values are 'up' or 'down'."
-    echo "Usage: $0 [up | down]"
+  if [[ "$action" != "up" && "$action" != "down" && "$action" != "dev-build" ]]; then
+    echo "Error: Invalid action '$action'. Allowed values are 'up', 'down', or 'dev-build'."
+    echo "Usage: $0 [up | down | dev-build]"
     exit 1
   fi
 
   # Proceed with the script tasks
+  count_dir
   export_secrets
   generate_configs
   update_env_files
