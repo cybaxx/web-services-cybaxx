@@ -88,18 +88,18 @@ update_env_files() {
         local mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
 
         # Perform in-place substitution with backup handling for service-specific secrets
-        sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" \
-            -e "s|*${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" \
+        sed -e "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" \
+            -e "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" \
             "$file" > "$tmpfile" && mv "$tmpfile" "$file"
       done
 
       # Perform the substitution for the global secrets like DB_PASSWORD_WIKI, LOGIN_PASSWORD_WIKI, etc.
-      sed -e "s|*DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
-          -e "s|*LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
-          -e "s|*ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
-          -e "s|*BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
-          -e "s|*SITE_URL=.*|SITE_URL=$SITE_URL|" \
-          -e "s|*ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
+      sed -e "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
+          -e "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
+          -e "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
+          -e "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
+          -e "s|SITE_URL=.*|SITE_URL=$SITE_URL|" \
+          -e "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
           "$file" > "$tmpfile" && mv "$tmpfile" "$file"
 
     else
