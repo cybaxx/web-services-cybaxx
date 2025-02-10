@@ -11,16 +11,19 @@ count_dir() {
     SERVICE_ITEMS=($(ls ./services/))
 }
 
-# Export secrets as environment variables
+# Create env var for services as needed
 export_secrets() {
   export ENV_TAG="staging"
   for item in "${SERVICE_ITEMS[@]}"; do
-    declare -g "${item^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
-    declare -g "${item^^}_MARIADB_PASSWORD=$(generate_random_pass)"
+    # Replace hyphens with underscores in the service name
+    local service_name="${item//-/_}"
+
+    # Declare variables with valid names
+    declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
+    declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
   done
-  # BELOW COMMENTED OUT TO REPLACE SINGLE USE CREDS WITH PER PROJECT CREDS
-  # export MARIADB_ROOT_PASSWORD=$(generate_random_pass) # need to create struct based on what is currently in services dir
-  # export MARIADB_PASSWORD=$(generate_random_pass)
+
+  # Export other secrets as needed
   export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
   export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
   export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
@@ -28,6 +31,7 @@ export_secrets() {
   export SITE_URL="staging-wiki.wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
+
 
 # Generate configuration files from templates
 generate_configs() {
