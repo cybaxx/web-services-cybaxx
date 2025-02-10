@@ -7,6 +7,7 @@ generate_random_pass() {
   pwgen -s 32 1
 }
 
+# Count service directories
 count_dir() {
     SERVICE_ITEMS=($(ls ./services/))
 }
@@ -25,16 +26,6 @@ export_secrets() {
     declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
   done
 
-  # Dynamically set the shared global variables for all services
-  for item in "${SERVICE_ITEMS[@]}"; do
-    # Replace hyphens with underscores in the service name for the global variable name
-    local service_name="${item//-/_}"
-
-    # Export global variables dynamically for each service
-    export "${service_name^^}_MARIADB_ROOT_PASSWORD"
-    export "${service_name^^}_MARIADB_PASSWORD"
-  done
-
   # Export other secrets as needed
   export DB_PASSWORD_WIKI=$(generate_random_pass)
   export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
@@ -43,7 +34,6 @@ export_secrets() {
   export SITE_URL="staging-wiki.wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
-
 
 # Generate configuration files from templates
 generate_configs() {
@@ -80,16 +70,25 @@ update_env_files() {
       # Create a temporary file for backup
       tmpfile=$(mktemp)
 
-      # Perform in-place substitution with backup handling
-      sed -e "s|*MARIADB_ROOT_PASSWORD=.*|MARIADB_ROOT_PASSWORD=$MARIADB_ROOT_PASSWORD|" \
-          -e "s|*MARIADB_PASSWORD=.*|MARIADB_PASSWORD=$MARIADB_PASSWORD|" \
-          -e "s|*DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
+      # Iterate through service items to replace the placeholders dynamically
+      for item in "${SERVICE_ITEMS[@]}"; do
+        # Replace hyphens with underscores in the service name for the global variable name
+        local service_name="${item//-/_}"
+
+        # Perform in-place substitution with backup handling
+        sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=${!service_name^^_MARIADB_ROOT_PASSWORD}|" \
+            -e "s|*${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=${!service_name^^_MARIADB_PASSWORD}|" \
+            "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+      done
+
+      # Perform the substitution for the global secrets like DB_PASSWORD_WIKI, LOGIN_PASSWORD_WIKI, etc.
+      sed -e "s|*DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
           -e "s|*LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
           -e "s|*ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
           -e "s|*BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
           -e "s|*SITE_URL=.*|SITE_URL=$SITE_URL|" \
           -e "s|*ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
-          "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+          "$tmpfile" > "$file" && rm "$tmpfile"
 
     else
       echo "Warning: .env file $file not found."
