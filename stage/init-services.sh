@@ -2,6 +2,21 @@
 
 set -eu
 
+trapdoor(){
+  # Define a file that will act as a lock to check if the script has run before
+  LOCK_FILE="/tmp/web-services-init.lock"
+
+  # Check if the lock file exists
+  if [ -f "$LOCK_FILE" ]; then
+      echo "This script has already been run on this machine. Exiting."
+      exit 1
+  else
+    # If the lock file doesn't exist, create it
+    touch "$LOCK_FILE"
+    echo "This is the first time the script is being run on this machine."
+  fi
+}
+
 # Generate a random SHA-512 hash
 generate_random_pass() {
   pwgen -s 32 1
