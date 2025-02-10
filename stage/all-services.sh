@@ -76,40 +76,38 @@ update_env_files() {
     if [[ -f "$file" ]]; then
       echo "Updating variables in: $file"
 
-      # Create a temporary file for backup
-      tmpfile=$(mktemp)
+      # Create a backup before making any changes
+      cp "$file" "${file}.bak"
 
-      # Iterate through service items to replace the placeholders dynamically
+      # Substitute service-specific secrets
       for item in "${SERVICE_ITEMS[@]}"; do
         local service_name="${item//-/_}"
         local root_password_var="${service_name^^}_MARIADB_ROOT_PASSWORD"
         local password_var="${service_name^^}_MARIADB_PASSWORD"
 
-        # Access the environment variables directly (assuming they're already exported)
+        # Get the values for passwords from the environment variables
         local mariadb_root_password="${!root_password_var}"
         local mariadb_password="${!password_var}"
 
-        # Perform in-place substitution with backup handling for service-specific secrets
-        sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" \
-            -e "s|*${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" \
-            "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+        # Perform in-place substitution
+        sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
+        sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
       done
 
-      # Perform the substitution for the global secrets like DB_PASSWORD_WIKI, LOGIN_PASSWORD_WIKI, etc.
-      sed -e "s|*DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" \
-          -e "s|*LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" \
-          -e "s|*ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" \
-          -e "s|*BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" \
-          -e "s|*SITE_URL=.*|SITE_URL=$SITE_URL|" \
-          -e "s|*ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" \
-          "$file" > "$tmpfile" && mv "$tmpfile" "$file"
+      # Substitute the global secrets
+      sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" "$file"
+      sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" "$file"
+      sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" "$file"
+      sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" "$file"
+      sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
+      sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
 
+      echo "Successfully updated $file"
     else
       echo "Warning: .env file $file not found."
     fi
   done
 }
-
 
 # Configure Traefik environment file
 config_traefik() {
