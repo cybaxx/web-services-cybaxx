@@ -4,7 +4,7 @@ set -eu
 
 # Generate a random SHA-512 hash
 generate_random_pass() {
-  pwgen -s 32 1
+  pwgen -s 32 1 | awk awk '{print $1}'
 }
 
 # Export secrets as environment variables
@@ -115,6 +115,12 @@ run_docker_compose() {
         }
       done
       ;;
+    "dev-build")
+      for dir in ${project_dirs[@]}; do
+        echo "Running \" docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
+        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate --build --no-deps ||{
+            echo "Failed to stte the service in $dir. Continuing..."
+        }
     *)
       echo "Error: Invalid action '$action'. Allowed values are 'up' or 'down'."
       echo "Usage: $0 [up | down]"
