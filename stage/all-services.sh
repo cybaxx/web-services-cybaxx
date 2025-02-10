@@ -14,13 +14,25 @@ count_dir() {
 # Create env var for services as needed
 export_secrets() {
   export ENV_TAG="staging"
+
+  # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
     # Replace hyphens with underscores in the service name
     local service_name="${item//-/_}"
 
-    # Declare variables with valid names
+    # Generate random passwords and declare service-specific variables
     declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
     declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
+  done
+
+  # Dynamically set the shared global variables for all services
+  for item in "${SERVICE_ITEMS[@]}"; do
+    # Replace hyphens with underscores in the service name for the global variable name
+    local service_name="${item//-/_}"
+
+    # Export global variables dynamically for each service
+    export "${service_name^^}_MARIADB_ROOT_PASSWORD"
+    export "${service_name^^}_MARIADB_PASSWORD"
   done
 
   # Export other secrets as needed
