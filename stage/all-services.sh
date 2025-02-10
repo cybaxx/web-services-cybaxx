@@ -24,7 +24,7 @@ export_secrets() {
   done
 
   # Export other secrets as needed
-  export DB_PASSWORD_WIKI=$MARIADB_PASSWORD
+  export DB_PASSWORD_WIKI=$(generate_random_pass)
   export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
   export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
   export BAN_PASSWORD_WIKI=$(generate_random_pass)
