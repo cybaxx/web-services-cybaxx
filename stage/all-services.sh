@@ -82,10 +82,12 @@ update_env_files() {
       # Iterate through service items to replace the placeholders dynamically
       for item in "${SERVICE_ITEMS[@]}"; do
         local service_name="${item//-/_}"
+        local root_password_var="${service_name^^}_MARIADB_ROOT_PASSWORD"
+        local password_var="${service_name^^}_MARIADB_PASSWORD"
 
-        # Resolve the variables before passing to sed
-        local mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
-        local mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+        # Access the environment variables directly (assuming they're already exported)
+        local mariadb_root_password="${!root_password_var}"
+        local mariadb_password="${!password_var}"
 
         # Perform in-place substitution with backup handling for service-specific secrets
         sed -e "s|*${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" \
