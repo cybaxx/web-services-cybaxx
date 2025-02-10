@@ -2,113 +2,6 @@
 
 set -eu
 
-# Generate a random SHA-512 hash
-generate_random_pass() {
-  pwgen -s 32 1
-}
-
-count_dir() {
-    SERVICE_ITEMS=($(ls ./services/))
-}
-
-# Create env var for services as needed
-export_secrets() {
-  export ENV_TAG="staging"
-
-  # Iterate through all service items
-  for item in "${SERVICE_ITEMS[@]}"; do
-    # Replace hyphens with underscores in the service name
-    local service_name="${item//-/_}"
-
-    # Generate random passwords and declare service-specific variables
-    declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
-    declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
-  done
-
-  # Dynamically set the shared global variables for all services
-  for item in "${SERVICE_ITEMS[@]}"; do
-    # Replace hyphens with underscores in the service name for the global variable name
-    local service_name="${item//-/_}"
-
-    # Export global variables dynamically for each service
-    export "${service_name^^}_MARIADB_ROOT_PASSWORD"
-    export "${service_name^^}_MARIADB_PASSWORD"
-  done
-
-  # Export other secrets as needed
-  export DB_PASSWORD_WIKI=$(generate_random_pass)
-  export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
-  export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
-  export BAN_PASSWORD_WIKI=$(generate_random_pass)
-  export SITE_URL="staging-wiki.wetfish.net"
-  export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
-}
-
-# Generate configuration files from templates
-generate_configs() {
-  local files=(
-    './services/wiki-staging/php.env.example'
-    './services/wiki-staging/mariadb.env.example'
-    './services/online-staging/php.env.example'
-    './services/online-staging/mariadb.env.example'
-  )
-
-  for file in "${files[@]}"; do
-    if [[ -f "$file" ]]; then
-      local output="${file%.example}"  # Remove .example extension
-      envsubst < "$file" > "$output" && echo "Generated: $output"
-    else
-      echo "Warning: Template file $file not found."
-    fi
-  done
-}
-
-# Replace variables directly in .env files
-update_env_files() {
-  local files=(
-    './services/wiki-staging/php.env'
-    './services/wiki-staging/mariadb.env'
-    './services/online-staging/php.env'
-    './services/online-staging/mariadb.env'
-  )
-
-  for file in "${files[@]}"; do
-    if [[ -f "$file" ]]; then
-      echo "Updating variables in: $file"
-
-      # Create a backup before making any changes
-      cp "$file" "${file}.bak"
-
-      # Substitute service-specific secrets
-      for item in "${SERVICE_ITEMS[@]}"; do
-        local service_name="${item//-/_}"
-        local root_password_var="${service_name^^}_MARIADB_ROOT_PASSWORD"
-        local password_var="${service_name^^}_MARIADB_PASSWORD"
-
-        # Get the values for passwords from the environment variables
-        local mariadb_root_password="${!root_password_var}"
-        local mariadb_password="${!password_var}"
-
-        # Perform in-place substitution
-        sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
-        sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
-      done
-
-      # Substitute the global secrets
-      sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" "$file"
-      sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" "$file"
-      sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" "$file"
-      sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" "$file"
-      sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
-      sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
-
-      echo "Successfully updated $file"
-    else
-      echo "Warning: .env file $file not found."
-    fi
-  done
-}
-
 # Configure Traefik environment file
 config_traefik() {
   cp ./traefik/traefik.env.example ./traefik/traefik.env
@@ -185,11 +78,6 @@ main() {
     exit 1
   fi
 
-  # Proceed with the script tasks
-  count_dir
-  export_secrets
-  generate_configs
-  update_env_files
   config_traefik
   set_script_dir
   check_docker_compose
