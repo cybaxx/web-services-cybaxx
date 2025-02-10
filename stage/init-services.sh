@@ -201,6 +201,7 @@ main() {
   fi
 
   # Proceed with the script tasks
+  trapdoor
   count_dir
   export_secrets
   generate_configs
