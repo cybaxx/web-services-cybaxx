@@ -156,7 +156,7 @@ check_docker_compose() {
 # Run Docker Compose commands
 run_docker_compose() {
   local action="$1"
-  local project_dirs=("traefik" "services/home-staging" "services/online-staging" "services/wiki-staging")
+  local project_dirs=("traefik" "services/home" "services/online" "services/wiki" "services/click" "services/danger")
 
   case "$action" in
     "down")
