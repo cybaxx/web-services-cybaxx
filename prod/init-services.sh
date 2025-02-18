@@ -3,19 +3,35 @@
 set -eu
 
 trapdoor(){
-  # Define a file that will act as a lock to check if the script has run before
-  LOCK_FILE="/tmp/web-services-init.lock"
+  # Define a list of .env files to check in service directories
+  ENV_FILES=(
+    "./services/wiki/php.env"
+    "./services/wiki/mariadb.env"
+    "./services/online/php.env"
+    "./services/online/mariadb.env"
+    "./services/click/php.env"
+    "./services/click/mariadb.env"
+    "./services/danger/php.env"
+    "./services/danger/mariadb.env"
+  )
 
-  # Check if the lock file exists
-  if [ -f "$LOCK_FILE" ]; then
-      echo "This script has already been run on this machine. Exiting."
+  # Check if any of the .env files already exist
+  for env_file in "${ENV_FILES[@]}"; do
+    if [ -f "$env_file" ]; then
+      echo "Environment file $env_file already exists. Exiting."
       exit 1
-  else
-    # If the lock file doesn't exist, create it
-    touch "$LOCK_FILE"
-    echo "This is the first time the script is being run on this machine."
-  fi
+    fi
+  done
+
+  # If no .env files are found, proceed with the script
+  echo "No .env files found. Proceeding with the script."
 }
+
+if [[ $(docker network ls | grep "$1") ]]; then
+  echo "Traefik backend already exists"
+else
+  docker network create traefik-backend
+fi
 
 # Generate a random SHA-512 hash
 generate_random_pass() {
