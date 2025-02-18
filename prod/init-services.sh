@@ -55,7 +55,7 @@ export_secrets() {
   export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
   export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
   export BAN_PASSWORD_WIKI=$(generate_random_pass)
-  export SITE_URL="staging-wiki.wetfish.net"
+  export SITE_URL="prod-wiki.wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
