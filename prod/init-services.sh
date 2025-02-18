@@ -28,7 +28,7 @@ count_dir() {
 
 # Create env var for services as needed
 export_secrets() {
-  export ENV_TAG="staging"
+  export ENV_TAG="prod"
 
   # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
