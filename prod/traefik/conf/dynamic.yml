@@ -4,7 +4,7 @@ http:
     wetfish-home:
       entrypoints:
         - "websecure"
-      rule: "Host(`wetfish.net`)"
+      rule: "Host(`test-wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
@@ -17,7 +17,7 @@ http:
     danger:
       entrypoints:
         - "websecure"
-      rule: "Host(`danger.wetfish.net`)"
+      rule: "Host(`test-danger.wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
@@ -30,7 +30,7 @@ http:
     online:
       entrypoints:
         - "websecure"
-      rule: "Host(`wetfishonline.com`)"
+      rule: "Host(`test-wetfishonline.com`)"
       tls:
         certResolver: letsencrypt
         options:
@@ -43,7 +43,7 @@ http:
     glitch:
       entrypoints:
         - "websecure"
-      rule: "Host(`glitch.wetfish.net`)"
+      rule: "Host(`test-glitch.wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
@@ -56,7 +56,7 @@ http:
     click:
       entrypoints:
         - "websecure"
-      rule: "Host(`click.wetfish.net`)"
+      rule: "Host(`test-click.wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
@@ -69,7 +69,7 @@ http:
     wiki:
       entrypoints:
         - "websecure"
-      rule: "Host(`wiki.wetfish.net`)"
+      rule: "Host(`test-wiki.wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
