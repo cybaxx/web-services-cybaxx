@@ -56,7 +56,7 @@ http:
     click:
       entrypoints:
         - "websecure"
-      rule: "Host(`test-click.wetfish.net`)"
+      rule: "Host(`click.wetfish.net`)"
       tls:
         certResolver: letsencrypt
         options:
