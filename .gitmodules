@@ -38,5 +38,5 @@
     branch = main
 [submodule "stage/services/home-staging"]
     path = stage/services/home
-    url = https://github.com/wetfish/wetfish.net
+    url = https://github.com/wetfish/wetfish.net.git
     branch = main
