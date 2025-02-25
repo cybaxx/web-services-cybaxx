@@ -29,14 +29,14 @@
 
 # STAGE MODULES
 [submodule "stage/services/wiki"]
-    path = stage/services/wiki
+    path = stage/services/wiki-staging
     url = https://github.com/wetfish/wiki.git
     branch = main
 [submodule "stage/services/online"]
-    path = stage/services/online
+    path = stage/services/online-staging
     url = https://github.com/wetfish/online.git
     branch = main
 [submodule "stage/services/home-staging"]
-    path = stage/services/home
+    path = stage/services/home-staging
     url = https://github.com/wetfish/wetfish.net.git
     branch = main
