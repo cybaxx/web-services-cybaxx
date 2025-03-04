@@ -12,17 +12,51 @@ ZFS_SNAPSHOT_DIR="/web-services-cybaxx"  # Directory to snapshot
 SRC_DIR="./services"  # Default source directory for backup
 DEST_DIR="$OUT_DIR"  # Default destination for backup
 
-# Function to simulate custom RSA shift and base64 encoding
+# Function to simulate RSA encryption with public key
+rsa_encrypt() {
+  local message="$1"
+  local e="$2"
+  local n="$3"
+  local encrypted=""
+
+  # Encrypt each character using RSA formula: c = m^e % n
+  for (( i=0; i<${#message}; i++ )); do
+    char="${message:$i:1}"
+    ascii_value=$(printf "%d" "'$char")
+    encrypted_char=$(echo "$ascii_value^$e % $n" | bc)
+    encrypted+="$encrypted_char "
+  done
+  echo "$encrypted"
+}
+
+# Function to simulate RSA decryption with private key
+rsa_decrypt() {
+  local encrypted_message="$1"
+  local d="$2"
+  local n="$3"
+  local decrypted=""
+
+  # Decrypt each number using RSA formula: m = c^d % n
+  for encrypted_char in $encrypted_message; do
+    decrypted_char=$(echo "$encrypted_char^$d % $n" | bc)
+    decrypted+=$(printf "\\$(printf '%03o' "$decrypted_char")")
+  done
+  echo "$decrypted"
+}
+
+# Function to simulate custom RSA shift and base64 encoding (mock)
 custom_rsa_base64_shift() {
-  local input="1337"
+  local input="$1"
 
-  # Simulate custom RSA shift with a power of 1337 (for fun)
-  # Note: this is a mock, for actual RSA encryption we would use openssl or a real library
-  # The shifting can be represented as a large number manipulation for fun
-  local rsa_shifted_input=$(echo -n "$input" | base64 | sha256sum | cut -d ' ' -f1)  # Fake RSA shift for fun
+  # Apply RSA encryption to the confirmation phrase (public key: e = 5, n = 91)
+  local e=5
+  local n=91
 
-  # Now return the base64-encoded shifted value
-  echo "$rsa_shifted_input"
+  # Encrypt the input using RSA
+  local encrypted_message=$(rsa_encrypt "$input" "$e" "$n")
+
+  # Return the encrypted message (this mimics the "shift" in a playful way)
+  echo "$encrypted_message"
 }
 
 # Function to ask the user for permission to run the prod service
@@ -41,7 +75,7 @@ ask_permission() {
 
     read -r confirmation
 
-    # Dynamically generate the correct shifted confirmation using the same method
+    # Dynamically generate the encrypted confirmation using the RSA mock encryption
     local correct_confirmation=$(custom_rsa_base64_shift "ISWEARTOGODRACHELTHEBEAVERQUEEENSAIDITWASOKAYTORUNTHISSCRIPTLOOKHERESTHEKEY")
 
     # Apply the custom RSA base64 shift to the input
@@ -50,14 +84,14 @@ ask_permission() {
     # Compare the shifted input with the dynamically generated correct confirmation
     if [[ "$shifted_confirmation" == "$correct_confirmation" ]]; then
       echo "Success Code : B00TY Permission confirmed. You may now run the script."
-      echo "4qCA4qCA4qCA4qCA4qKg4qGP4qCA4qCA4qCA4qCA4qCA4qCA4qKA4qGe4qCB4qCA4qG/4qOv4qG34qG04qKm4qOk4qGg4qO24qG24qCA4qK34qCA4qCA4qCA4qCA4qKw4qGH4qCA4qCA4qCA4qCA4qCA4qCA4qG+4qCACuKggOKggOKggOKggOKggOKggOKhnuKggOKggOKggOKggOKggOKggOKggOKjvOKjpeKjpOKjpOKjpOKjpOKjpOKjpOKjpOKjgOKjgOKjgOKjgOKggOKgiOKip+KggOKggOKggOKiuOKhh+KggOKggOKggOKggOKggOKigOKhh+KggArioIDioIDioIDioIDioIDiorjioIHioIDioIDioIDioIDioIDioIDiobzioIHioIDioIDioIDioIDioInioJnioLvior/io7/io7/io7/io7/io7/io7/ioJvioqbioIDioIDiorjioYfioIDioIDioIDioIDioIDiorjioYfioIAK4qCA4qCA4qCA4qCA4qKg4qGP4qCA4qCA4qCA4qCA4qCA4qCA4qG84qCB4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCZ4qK/4qO/4qO/4qO/4qO/4qCz4qCA4qKz4qGA4qK54qGH4qCA4qCA4qCA4qCA4qCA4qG+4qGH4qCACuKggOKggOKggOKggOKhnuKggOKggOKggOKggOKggOKggOKhvOKggeKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKiu+Kjv+Kjv+Khv+KgmOKggOKggOKgueKjvOKhh+KggOKggOKggOKggOKioOKgh+KggOKggArioIDioIDioIDio7DioIPioIDioIDioIDioIDioIDiob7ioIHioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIjio7/iob/ioIHioIDioIDioIDioIDioJjio4fioIDioIDioIDioIDiob7ioIDioIDioIAK4qCA4qCA4qKg4qGP4qCA4qCA4qCA4qCA4qCA4qG84qCB4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qK/4qCB4qCA4qCA4qCA4qCA4qCA4qCA4qC44qGE4qCA4qCA4qK44qCB4qCA4qCA4qCACuKggOKggOKhvuKggOKggOKggOKggOKggOKhvuKggeKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKjvOKggOKggOKggOKggOKggOKggOKggOKggOKiu+KggOKggOKhn+KggOKggOKggOKggArioIDio7TioJPio77io7Pio4DiooDiobzioIHioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDiorvioYfioIDioIDioIDioIDioIDioIDioIDiorjioYfiooDioIfioIDioIDioIDioIAK4qO+4qCD4qCA4qCA4qCA4qCR4qGf4qCB4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qO+4qCD4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCI4qGH4qK44qCA4qCA4qCA4qCA4qCACuKgueKhgOKggOKggOKggOKggOKgueKjhuKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKggOKigOKhj+KggOKggOKggOKggOKggOKggOKggOKggOKggOKhh+KjvuKggOKggOKggOKggOKggArioIDiorPioYTioIDioIDioIDioIDioJjio4TioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDiobzioIDioIDioIDioIDioIDioIDioIDioIDioIDiooDioYfio7/ioIDioIDioIDioIDioIAK4qCA4qCA4qO34qGE4qCA4qCA4qCA4qCA4qCZ4qKm4qGA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qKA4qGe4qCB4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qK44qCD4qGP4qCA4qCA4qCA4qCA4qCACuKggOKigOKhh+KiueKjhOKggOKggOKggOKggOKjgOKgieKgk+KgtuKihOKhgOKggOKggOKggOKggOKggOKigOKjoOKgtOKgi+Kgo+KjhOKggOKggOKggOKggOKggOKggOKggOKggOKioOKgn+KjuOKjp+KggOKggOKggOKggOKggArioIDio7Tio7/ioIvioJjio4bioIDiorDioLbioKTioo3io5vio7bioKTioL/io7fio6bioYDioJLioJrioZ/ioIDioIDioIDioIDioIjioJvioKLioKTioYTioIDioIDiooDiobTioq/ioLTio7PioIfioIDioIDioIDioIDioIAK4qCA4qCA4qCJ4qCA4qCA4qCY4qKm4qGI4qC74qOW4qCk4qOk4qOJ4qOJ4qO54qOv4qOt4qCJ4qCA4qCA4qGH4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qKg4qO+4qCb4qOr4qO84qCD4qCA4qCA4qCA4qCA4qCA4qCACuKggOKggOKggOKggOKggOKggOKggOKgkeKjhOKgieKipuKhgOKggOKggOKgiOKgieKggeKggOKggOKjuOKggeKggOKggOKggOKggOKggOKggOKggOKggOKggOKjtOKiv+Kjt+KimuKhneKggeKggOKggOKggOKggOKggOKggOKggArioIDioIDioIDioIDioIDioIDioIDioIDioIDioLniorbio7fioIfioIDioIDioIDioIDioIDio6DioI/ioIDioIDioIDioIDioIDioIDioIDioIDioIDioIDio7Tio7/ioLfioInioIDioIDioIDioIDioIDioIDioIDioIDioIAK4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qC44qCL4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCA4qCI4qCA" | base64 decode
+      # Place the logic to start the prod service here
     else
       echo "Error: ID10T The phrase does not match exactly. Permission not granted. Exiting."
       exit 1  # Non-standard error code ID10T
     fi
   else
     echo "Invalid response. Please answer with 'yes' or 'no'."
-    exit 1
+    exit 1  # Non-standard error code ID10T
   fi
 }
 
