@@ -19,6 +19,11 @@ log_message() {
   echo "$TIMESTAMP: $1" | tee -a "$LOG_FILE"
 }
 
+create_dumps_dir() {
+  mkdir /opt/wetfish-data-dumps/in
+  mkdir /opt/wetfish-data-dumps/out
+}
+
 # Function to request user permission
 ask_permission() {
   log_message "Asking for permission to proceed."
