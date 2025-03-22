@@ -153,31 +153,45 @@ check_docker_compose() {
 # Run Docker Compose commands
 run_docker_compose() {
   local action="$1"
-  local project_dirs=("traefik" "services/home" "services/online" "services/wiki" "services/click" "services/danger")
+
+  # Get all the directories under ./services that actually exist
+  SERVICE_DIRS=$(find ./services -mindepth 1 -maxdepth 1 -type d -exec basename {} \;)
 
   case "$action" in
     "down")
-      for dir in "${project_dirs[@]}"; do
-        echo "Running \"docker compose down\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose down || {
-          echo "Failed to bring down the service in $dir. Continuing..."
-        }
+      for dir in $SERVICE_DIRS; do
+        echo "Running \"docker compose down\" in services/$dir"
+        if [ -d "${SCRIPT_DIR}/services/$dir" ]; then
+          cd "${SCRIPT_DIR}/services/$dir" && docker compose down || {
+            echo "Failed to bring down the service in $dir. Continuing..."
+          }
+        else
+          echo "Directory for service $dir not found. Skipping..."
+        fi
       done
       ;;
     "up")
-      for dir in "${project_dirs[@]}"; do
-        echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose -f docker-compose.yml up -d --force-recreate || {
-          echo "Failed to start the service in $dir. Continuing..."
-        }
+      for dir in $SERVICE_DIRS; do
+        echo "Running \"docker compose up -d --force-recreate\" in services/$dir"
+        if [ -d "${SCRIPT_DIR}/services/$dir" ]; then
+          cd "${SCRIPT_DIR}/services/$dir" && docker compose up -d --force-recreate || {
+            echo "Failed to start the service in $dir. Continuing..."
+          }
+        else
+          echo "Directory for service $dir not found. Skipping..."
+        fi
       done
       ;;
     "dev-build")
-      for dir in "${project_dirs[@]}"; do
-        echo "Running \"docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate --build --no-deps || {
-          echo "Failed to set the service in $dir. Continuing..."
-        }
+      for dir in $SERVICE_DIRS; do
+        echo "Running \"docker compose up -d --force-recreate --build --no-deps\" in services/$dir"
+        if [ -d "${SCRIPT_DIR}/services/$dir" ]; then
+          cd "${SCRIPT_DIR}/services/$dir" && docker compose up -d --force-recreate --build --no-deps || {
+            echo "Failed to set the service in $dir. Continuing..."
+          }
+        else
+          echo "Directory for service $dir not found. Skipping..."
+        fi
       done
       ;;
     *)
@@ -187,6 +201,7 @@ run_docker_compose() {
       ;;
   esac
 }
+
 
 # Main script execution
 main() {
