@@ -10,7 +10,7 @@ trapdoor() {
   )
 
   # Check if any of the .env files already exist
-  for env_file in "${ENV_FILES[@]}"; do
+  for env_file in ${ENV_FILES[@]}; do
     if [[ -f "$env_file" ]]; then
       echo "Environment file $env_file already exists. Exiting."
       exit 1
@@ -74,7 +74,8 @@ generate_configs() {
     './services/*/mariadb.env.example'
   )
 
-  for file in "${files[@]}"; do
+  # Explicitly expand wildcards to get a list of files
+  for file in ${files[@]}; do
     if [[ -f "$file" ]]; then
       local output
       output="${file%.example}"  # Remove .example extension
@@ -93,7 +94,8 @@ update_env_files() {
     './services/*/mariadb.env.example'
   )
 
-  for file in "${files[@]}"; do
+  # Explicitly expand wildcards to get a list of files
+  for file in ${files[@]}; do
     if [[ -f "$file" ]]; then
       echo "Updating variables in: $file"
 
