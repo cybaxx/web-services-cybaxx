@@ -240,4 +240,4 @@ main() {
   run_docker_compose "$action"
 }
 
-main
+main "$@"
