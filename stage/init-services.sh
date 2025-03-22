@@ -2,26 +2,18 @@
 
 set -eu
 
-trapdoor(){
-  # Dynamically detect service directories under ./services/
-  SERVICE_DIRS=$(find ./services/ -maxdepth 1 -type d)
+trapdoor() {
+  # Define a list of .env files to check in service directories
+  ENV_FILES=(
+    "./services/*/php.env"
+    "./services/*/mariadb.env"
+  )
 
-  # Iterate over each service directory to check for .env files
-  for service_dir in $SERVICE_DIRS; do
-    if [[ -d "$service_dir" ]]; then
-      # Define the possible .env files to check for in each service directory
-      ENV_FILES=(
-        "$service_dir/php.env"
-        "$service_dir/mariadb.env"
-      )
-
-      # Check if any of the .env files already exist in the service directory
-      for env_file in "${ENV_FILES[@]}"; do
-        if [ -f "$env_file" ]; then
-          echo "Environment file $env_file already exists in $service_dir. Exiting."
-          exit 1
-        fi
-      done
+  # Check if any of the .env files already exist
+  for env_file in "${ENV_FILES[@]}"; do
+    if [[ -f "$env_file" ]]; then
+      echo "Environment file $env_file already exists. Exiting."
+      exit 1
     fi
   done
 
@@ -29,125 +21,110 @@ trapdoor(){
   echo "No .env files found. Proceeding with the script."
 }
 
-# Dynamically generate random passwords
+# Generate a random SHA-512 hash for passwords
 generate_random_pass() {
   pwgen -s 32 1
 }
 
-# Dynamically count service directories
+# Get all service directories dynamically
 count_dir() {
-    # Only extract the service directory names, not the full path
-    SERVICE_ITEMS=($(find ./services/ -maxdepth 1 -type d -exec basename {} \;))
+    SERVICE_ITEMS=($(find ./services/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;))
 }
 
-# Create env var for services as needed
+# Create environment variables for services
 export_secrets() {
   export ENV_TAG="prod"
 
   # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
-    # Replace hyphens with underscores in the service name for a valid variable name
-    local service_name="${item//-/_}"
+    # Replace hyphens with underscores in the service name
+    local service_name
+    service_name="${item//-/_}"
 
-    # Generate random passwords and declare service-specific variables
-    declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
-    declare -g "${service_name^^}_MARIADB_PASSWORD=$(generate_random_pass)"
+    # Generate random passwords and assign service-specific variables
+    local root_password
+    root_password=$(generate_random_pass)
+    local password
+    password=$(generate_random_pass)
 
-    # Dynamically create SITE_URL based on the service name (subdomain)
-    declare -g "${service_name^^}_SITE_URL=${service_name}.wetfish.net"
+    export "${service_name^^}_MARIADB_ROOT_PASSWORD"="$root_password"
+    export "${service_name^^}_MARIADB_PASSWORD"="$password"
   done
 
-  # Dynamically set the shared global variables for all services
-  for item in "${SERVICE_ITEMS[@]}"; do
-    local service_name="${item//-/_}"
-
-    # Export global variables dynamically for each service
-    export "${service_name^^}_MARIADB_ROOT_PASSWORD"
-    export "${service_name^^}_MARIADB_PASSWORD"
-    export "${service_name^^}_SITE_URL"  # Export the dynamically created SITE_URL
-  done
-
-  # Export other secrets as needed
-  export DB_PASSWORD_WIKI=$(generate_random_pass)
-  export LOGIN_PASSWORD_WIKI=$(generate_random_pass)
-  export ADMIN_PASSWORD_WIKI=$(generate_random_pass)
-  export BAN_PASSWORD_WIKI=$(generate_random_pass)
+  # Export other secrets
+  export DB_PASSWORD_WIKI
+  DB_PASSWORD_WIKI=$(generate_random_pass)
+  export LOGIN_PASSWORD_WIKI
+  LOGIN_PASSWORD_WIKI=$(generate_random_pass)
+  export ADMIN_PASSWORD_WIKI
+  ADMIN_PASSWORD_WIKI=$(generate_random_pass)
+  export BAN_PASSWORD_WIKI
+  BAN_PASSWORD_WIKI=$(generate_random_pass)
+  export SITE_URL="prod-wiki.wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
 # Generate configuration files from templates
 generate_configs() {
-  # Dynamically detect service directories and their example files
-  SERVICE_DIRS=$(find ./services/ -maxdepth 1 -type d)
+  local files
+  files=(
+    './services/*/php.env.example'
+    './services/*/mariadb.env.example'
+  )
 
-  for service_dir in $SERVICE_DIRS; do
-    if [[ -d "$service_dir" ]]; then
-      local files=(
-        "$service_dir/php.env.example"
-        "$service_dir/mariadb.env.example"
-      )
-
-      for file in "${files[@]}"; do
-        if [[ -f "$file" ]]; then
-          local output="${file%.example}"  # Remove .example extension
-          envsubst < "$file" > "$output" && echo "Generated: $output"
-        else
-          echo "Warning: Template file $file not found in $service_dir."
-        fi
-      done
+  for file in "${files[@]}"; do
+    if [[ -f "$file" ]]; then
+      local output
+      output="${file%.example}"  # Remove .example extension
+      envsubst < "$file" > "$output" && echo "Generated: $output"
+    else
+      echo "Warning: Template file $file not found."
     fi
   done
 }
 
 # Replace variables directly in .env files
 update_env_files() {
-  # Dynamically detect service directories and their .env files
-  SERVICE_DIRS=$(find ./services/ -maxdepth 1 -type d)
+  local files
+  files=(
+    './services/*/php.env.example'
+    './services/*/mariadb.env.example'
+  )
 
-  for service_dir in $SERVICE_DIRS; do
-    if [[ -d "$service_dir" ]]; then
-      local files=(
-        "$service_dir/php.env"
-        "$service_dir/mariadb.env"
-      )
+  for file in "${files[@]}"; do
+    if [[ -f "$file" ]]; then
+      echo "Updating variables in: $file"
 
-      for file in "${files[@]}"; do
-        if [[ -f "$file" ]]; then
-          echo "Updating variables in: $file"
+      # Create a backup before making any changes
+      cp "$file" "${file}.bak"
 
-          # Create a backup before making any changes
-          cp "$file" "${file}.bak"
+      # Substitute service-specific secrets
+      for item in "${SERVICE_ITEMS[@]}"; do
+        local service_name
+        service_name="${item//-/_}"
 
-          # Substitute service-specific secrets
-          for item in "${SERVICE_ITEMS[@]}"; do
-            local service_name=$(basename "$item")
-            local root_password_var="${service_name^^}_MARIADB_ROOT_PASSWORD"
-            local password_var="${service_name^^}_MARIADB_PASSWORD"
-            local site_url_var="${service_name^^}_SITE_URL"
+        # Get the values for passwords from the environment variables
+        local mariadb_root_password
+        mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
+        local mariadb_password
+        mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
 
-            # Get the values for passwords and site URL from the environment variables
-            local mariadb_root_password="${!root_password_var}"
-            local mariadb_password="${!password_var}"
-            local site_url="${!site_url_var}"
-
-            # Perform in-place substitution
-            sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
-            sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
-            sed -i "s|${service_name^^}_SITE_URL=.*|${service_name^^}_SITE_URL=$site_url|" "$file"
-          done
-
-          # Substitute the global secrets
-          sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" "$file"
-          sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" "$file"
-          sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" "$file"
-          sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" "$file"
-          sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
-
-          echo "Successfully updated $file"
-        else
-          echo "Warning: .env file $file not found in $service_dir."
-        fi
+        # Perform in-place substitution
+        sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
+        sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
       done
+
+      # Substitute the global secrets
+      sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD_WIKI|" "$file"
+      sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD_WIKI|" "$file"
+      sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD_WIKI|" "$file"
+      sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD_WIKI|" "$file"
+      sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
+      sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
+
+      echo "Successfully updated $file"
+    else
+      echo "Warning: .env file $file not found."
     fi
   done
 }
@@ -176,7 +153,7 @@ check_docker_compose() {
 # Run Docker Compose commands
 run_docker_compose() {
   local action="$1"
-  local project_dirs=("traefik" "services")
+  local project_dirs=("traefik" "services/home" "services/online" "services/wiki" "services/click" "services/danger")
 
   case "$action" in
     "down")
