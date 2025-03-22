@@ -155,29 +155,31 @@ check_docker_compose() {
 # Run Docker Compose commands
 run_docker_compose() {
   local action="$1"
-  local project_dirs=("traefik" "services/home" "services/online" "services/wiki" "services/click" "services/danger")
+
+  # Get the list of services dynamically
+  count_dir
 
   case "$action" in
     "down")
-      for dir in "${project_dirs[@]}"; do
+      for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose down\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose down || {
+        cd "${SCRIPT_DIR}/services/${dir}" && docker compose down || {
           echo "Failed to bring down the service in $dir. Continuing..."
         }
       done
       ;;
     "up")
-      for dir in "${project_dirs[@]}"; do
+      for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose -f docker-compose.yml up -d --force-recreate || {
+        cd "${SCRIPT_DIR}/services/${dir}" && docker compose -f docker-compose.yml up -d --force-recreate || {
           echo "Failed to start the service in $dir. Continuing..."
         }
       done
       ;;
     "dev-build")
-      for dir in "${project_dirs[@]}"; do
+      for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
-        cd "${SCRIPT_DIR}/${dir}" && docker compose up -d --force-recreate --build --no-deps || {
+        cd "${SCRIPT_DIR}/services/${dir}" && docker compose up -d --force-recreate --build --no-deps || {
           echo "Failed to set the service in $dir. Continuing..."
         }
       done
