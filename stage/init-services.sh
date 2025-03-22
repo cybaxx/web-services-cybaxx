@@ -36,7 +36,8 @@ generate_random_pass() {
 
 # Dynamically count service directories
 count_dir() {
-    SERVICE_ITEMS=($(find ./services/ -maxdepth 1 -type d))
+    # Only extract the service directory names, not the full path
+    SERVICE_ITEMS=($(find ./services/ -maxdepth 1 -type d -exec basename {} \;))
 }
 
 # Create env var for services as needed
@@ -239,4 +240,4 @@ main() {
   run_docker_compose "$action"
 }
 
-main "$@"
+main
