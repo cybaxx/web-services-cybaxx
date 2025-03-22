@@ -45,8 +45,8 @@ export_secrets() {
 
   # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
-    # Extract the service name from the directory path
-    local service_name=$(basename "$item")
+    # Replace hyphens with underscores in the service name for a valid variable name
+    local service_name="${item//-/_}"
 
     # Generate random passwords and declare service-specific variables
     declare -g "${service_name^^}_MARIADB_ROOT_PASSWORD=$(generate_random_pass)"
@@ -58,7 +58,7 @@ export_secrets() {
 
   # Dynamically set the shared global variables for all services
   for item in "${SERVICE_ITEMS[@]}"; do
-    local service_name=$(basename "$item")
+    local service_name="${item//-/_}"
 
     # Export global variables dynamically for each service
     export "${service_name^^}_MARIADB_ROOT_PASSWORD"
