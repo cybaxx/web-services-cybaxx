@@ -34,9 +34,8 @@ count_dir() {
 
 # Create environment variables for services
 export_secrets() {
-  export ENV_TAG="prod"
-  # Uncommented the SITE_URL export
-  export SITE_URL="wetfish.net"
+  export ENV_TAG="stage"
+  #export SITE_URL="wetfish.net"
 
   # Use count_dir to get the service directories if not already populated
   if [[ ${#SERVICE_ITEMS[@]} -eq 0 ]]; then
