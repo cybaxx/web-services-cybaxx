@@ -70,8 +70,8 @@ export_secrets() {
 generate_configs() {
   local files
   files=(
-    './services/*/php.env.example'
-    './services/*/mariadb.env.example'
+    "./services/*/php.env.example"
+    "./services/*/mariadb.env.example"
   )
 
   # Explicitly expand wildcards to get a list of files
@@ -90,8 +90,8 @@ generate_configs() {
 update_env_files() {
   local files
   files=(
-    './services/*/php.env.example'
-    './services/*/mariadb.env.example'
+    "./services/*/php.env.example"
+    "./services/*/mariadb.env.example"
   )
 
   # Explicitly expand wildcards to get a list of files
