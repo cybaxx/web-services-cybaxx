@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 
-set -eu
+set -eux
 
 trapdoor() {
   # Define a list of .env files to check in service directories
@@ -35,10 +35,13 @@ count_dir() {
 # Create environment variables for services
 export_secrets() {
   export ENV_TAG="prod"
+  # Uncommented the SITE_URL export
+  export SITE_URL="wetfish.net"
 
-  # Use count_dir to get the service directories
-  count_dir
-  echo "Service items: ${SERVICE_ITEMS[@]}"
+  # Use count_dir to get the service directories if not already populated
+  if [[ ${#SERVICE_ITEMS[@]} -eq 0 ]]; then
+    count_dir
+  fi
 
   # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
@@ -64,7 +67,6 @@ export_secrets() {
   ADMIN_PASSWORD=$(generate_random_pass)
   export BAN_PASSWORD
   BAN_PASSWORD=$(generate_random_pass)
-  export SITE_URL="wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
@@ -89,63 +91,64 @@ generate_configs() {
 }
 
 # Replace variables directly in .env files
-    update_env_files() {
-      local files
-      files=(
-        "./services/*/php.env.example"
-        "./services/*/mariadb.env.example"
-      )
+update_env_files() {
+  local files
+  files=(
+    "./services/*/php.env.example"
+    "./services/*/mariadb.env.example"
+  )
 
-      # Explicitly expand wildcards to get a list of files
-      for file in ${files[@]}; do
-        if [[ -f "$file" ]]; then
-          echo "Updating variables in: $file"
+  # Explicitly expand wildcards to get a list of files
+  for file in ${files[@]}; do
+    if [[ -f "$file" ]]; then
+      echo "Updating variables in: $file"
 
-          # Create a backup before making any changes
-          cp "$file" "${file}.bak"
+      # Create a backup before making any changes
+      cp "$file" "${file}.bak"
 
-          # Substitute service-specific secrets
-          for item in "${SERVICE_ITEMS[@]}"; do
-            local service_name
-            #service_name="${item//-/_}"
+      # Substitute service-specific secrets
+      for item in "${SERVICE_ITEMS[@]}"; do
+        # Uncommented the service_name line
+        local service_name
+        service_name="${item//-/_}"
 
-            # Ensure service_name is set (not empty)
-            if [[ -z "$service_name" ]]; then
-              echo "Error: service_name is empty for item $item. Skipping."
-              continue
-            fi
-
-            # Get the values for passwords from the environment variables
-            local mariadb_root_password
-            mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
-            local mariadb_password
-            mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
-
-            # Check if the environment variables are set
-            if [[ -z "$mariadb_root_password" || -z "$mariadb_password" ]]; then
-              echo "Error: Missing environment variables for ${service_name^^}. Skipping."
-              continue
-            fi
-
-            # Perform in-place substitution
-            sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
-            sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
-          done
-
-          # Substitute the global secrets
-          sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD|" "$file"
-          sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD|" "$file"
-          sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD|" "$file"
-          sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD|" "$file"
-          sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
-          sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
-
-          echo "Successfully updated $file"
-        else
-          echo "Warning: .env file $file not found."
+        # Ensure service_name is set (not empty)
+        if [[ -z "$service_name" ]]; then
+          echo "Error: service_name is empty for item $item. Skipping."
+          continue
         fi
+
+        # Get the values for passwords from the environment variables
+        local mariadb_root_password
+        mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
+        local mariadb_password
+        mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+
+        # Check if the environment variables are set
+        if [[ -z "$mariadb_root_password" || -z "$mariadb_password" ]]; then
+          echo "Error: Missing environment variables for ${service_name^^}. Skipping."
+          continue
+        fi
+
+        # Perform in-place substitution
+        sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
+        sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
       done
-    }
+
+      # Substitute the global secrets
+      sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD|" "$file"
+      sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD|" "$file"
+      sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD|" "$file"
+      sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD|" "$file"
+      sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
+      sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
+
+      echo "Successfully updated $file"
+    else
+      echo "Warning: .env file $file not found."
+    fi
+  done
+}
 
 # Configure Traefik environment file
 config_traefik() {
@@ -172,32 +175,40 @@ check_docker_compose() {
 run_docker_compose() {
   local action="$1"
 
-  # Get the list of services dynamically
-  count_dir
+  # Get the list of services dynamically if not already populated
+  if [[ ${#SERVICE_ITEMS[@]} -eq 0 ]]; then
+    count_dir
+  fi
 
   case "$action" in
     "down")
       for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose down\" in ${dir}"
-        cd "${SCRIPT_DIR}/services/${dir}" && docker compose down || {
-          echo "Failed to bring down the service in $dir. Continuing..."
-        }
+        if cd "${SCRIPT_DIR}/services/${dir}"; then
+          docker compose down || echo "Failed to bring down the service in $dir. Continuing..."
+        else
+          echo "Failed to change directory to ${SCRIPT_DIR}/services/${dir}. Skipping..."
+        fi
       done
       ;;
     "up")
       for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose up -d --force-recreate\" in ${dir}"
-        cd "${SCRIPT_DIR}/services/${dir}" && docker compose -f docker-compose.yml up -d --force-recreate || {
-          echo "Failed to start the service in $dir. Continuing..."
-        }
+        if cd "${SCRIPT_DIR}/services/${dir}"; then
+          docker compose -f docker-compose.yml up -d --force-recreate || echo "Failed to start the service in $dir. Continuing..."
+        else
+          echo "Failed to change directory to ${SCRIPT_DIR}/services/${dir}. Skipping..."
+        fi
       done
       ;;
     "dev-build")
       for dir in "${SERVICE_ITEMS[@]}"; do
         echo "Running \"docker compose up -d --force-recreate --build --no-deps\" in ${dir}"
-        cd "${SCRIPT_DIR}/services/${dir}" && docker compose up -d --force-recreate --build --no-deps || {
-          echo "Failed to set the service in $dir. Continuing..."
-        }
+        if cd "${SCRIPT_DIR}/services/${dir}"; then
+          docker compose up -d --force-recreate --build --no-deps || echo "Failed to set the service in $dir. Continuing..."
+        else
+          echo "Failed to change directory to ${SCRIPT_DIR}/services/${dir}. Skipping..."
+        fi
       done
       ;;
     *)
@@ -226,7 +237,8 @@ main() {
   fi
 
   # Proceed with the script tasks
-  #trapdoor
+  # Uncommented the trapdoor function call - you can comment it out again if not needed
+  trapdoor
   count_dir
   export_secrets
   generate_configs
