@@ -64,7 +64,7 @@ export_secrets() {
   ADMIN_PASSWORD=$(generate_random_pass)
   export BAN_PASSWORD
   BAN_PASSWORD=$(generate_random_pass)
-  export SITE_URL="prod.wetfish.net"
+  export SITE_URL="wetfish.net"
   export ALLOWED_EMBEDS="/^.*\.wetfish.net$/i"
 }
 
@@ -107,7 +107,7 @@ generate_configs() {
           # Substitute service-specific secrets
           for item in "${SERVICE_ITEMS[@]}"; do
             local service_name
-            service_name="${item//-/_}"
+            #service_name="${item//-/_}"
 
             # Ensure service_name is set (not empty)
             if [[ -z "$service_name" ]]; then
