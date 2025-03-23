@@ -87,51 +87,63 @@ generate_configs() {
 }
 
 # Replace variables directly in .env files
-update_env_files() {
-  local files
-  files=(
-    "./services/*/php.env.example"
-    "./services/*/mariadb.env.example"
-  )
+    update_env_files() {
+      local files
+      files=(
+        "./services/*/php.env.example"
+        "./services/*/mariadb.env.example"
+      )
 
-  # Explicitly expand wildcards to get a list of files
-  for file in ${files[@]}; do
-    if [[ -f "$file" ]]; then
-      echo "Updating variables in: $file"
+      # Explicitly expand wildcards to get a list of files
+      for file in ${files[@]}; do
+        if [[ -f "$file" ]]; then
+          echo "Updating variables in: $file"
 
-      # Create a backup before making any changes
-      cp "$file" "${file}.bak"
+          # Create a backup before making any changes
+          cp "$file" "${file}.bak"
 
-      # Substitute service-specific secrets
-      for item in "${SERVICE_ITEMS[@]}"; do
-        local service_name
-        service_name="${item//-/_}"
+          # Substitute service-specific secrets
+          for item in "${SERVICE_ITEMS[@]}"; do
+            local service_name
+            service_name="${item//-/_}"
 
-        # Get the values for passwords from the environment variables
-        local mariadb_root_password
-        mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
-        local mariadb_password
-        mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+            # Ensure service_name is set (not empty)
+            if [[ -z "$service_name" ]]; then
+              echo "Error: service_name is empty for item $item. Skipping."
+              continue
+            fi
 
-        # Perform in-place substitution
-        sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
-        sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
+            # Get the values for passwords from the environment variables
+            local mariadb_root_password
+            mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
+            local mariadb_password
+            mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+
+            # Check if the environment variables are set
+            if [[ -z "$mariadb_root_password" || -z "$mariadb_password" ]]; then
+              echo "Error: Missing environment variables for ${service_name^^}. Skipping."
+              continue
+            fi
+
+            # Perform in-place substitution
+            sed -i "s|${service_name^^}_MARIADB_ROOT_PASSWORD=.*|${service_name^^}_MARIADB_ROOT_PASSWORD=$mariadb_root_password|" "$file"
+            sed -i "s|${service_name^^}_MARIADB_PASSWORD=.*|${service_name^^}_MARIADB_PASSWORD=$mariadb_password|" "$file"
+          done
+
+          # Substitute the global secrets
+          sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD|" "$file"
+          sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD|" "$file"
+          sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD|" "$file"
+          sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD|" "$file"
+          sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
+          sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
+
+          echo "Successfully updated $file"
+        else
+          echo "Warning: .env file $file not found."
+        fi
       done
-
-      # Substitute the global secrets
-      sed -i "s|DB_PASSWORD=.*|DB_PASSWORD=$DB_PASSWORD|" "$file"
-      sed -i "s|LOGIN_PASSWORD=.*|LOGIN_PASSWORD=$LOGIN_PASSWORD|" "$file"
-      sed -i "s|ADMIN_PASSWORD=.*|ADMIN_PASSWORD=$ADMIN_PASSWORD|" "$file"
-      sed -i "s|BAN_PASSWORD=.*|BAN_PASSWORD=$BAN_PASSWORD|" "$file"
-      sed -i "s|SITE_URL=.*|SITE_URL=$SITE_URL|" "$file"
-      sed -i "s|ALLOWED_EMBEDS=.*|ALLOWED_EMBEDS=$ALLOWED_EMBEDS|" "$file"
-
-      echo "Successfully updated $file"
-    else
-      echo "Warning: .env file $file not found."
-    fi
-  done
-}
+    }
 
 # Configure Traefik environment file
 config_traefik() {
