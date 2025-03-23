@@ -29,6 +29,8 @@ generate_random_pass() {
 # Get all service directories dynamically
 count_dir() {
   SERVICE_ITEMS=($(find ./services/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;))
+  echo "Service items: ${SERVICE_ITEMS[@]}"
+
 }
 
 # Create environment variables for services
