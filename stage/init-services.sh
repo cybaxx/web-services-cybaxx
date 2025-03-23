@@ -30,7 +30,6 @@ generate_random_pass() {
 count_dir() {
   SERVICE_ITEMS=($(find ./services/ -mindepth 1 -maxdepth 1 -type d -exec basename {} \;))
   echo "Service items: ${SERVICE_ITEMS[@]}"
-
 }
 
 # Create environment variables for services
@@ -39,6 +38,7 @@ export_secrets() {
 
   # Use count_dir to get the service directories
   count_dir
+  echo "Service items: ${SERVICE_ITEMS[@]}"
 
   # Iterate through all service items
   for item in "${SERVICE_ITEMS[@]}"; do
