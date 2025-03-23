@@ -108,7 +108,6 @@ update_env_files() {
 
       # Substitute service-specific secrets
       for item in "${SERVICE_ITEMS[@]}"; do
-        # Uncommented the service_name line
         local service_name
         service_name="${item//-/_}"
 
@@ -119,10 +118,10 @@ update_env_files() {
         fi
 
         # Get the values for passwords from the environment variables
-        local mariadb_root_password
-        mariadb_root_password="${!service_name^^_MARIADB_ROOT_PASSWORD}"
-        local mariadb_password
-        mariadb_password="${!service_name^^_MARIADB_PASSWORD}"
+        local var_name="${service_name^^}_MARIADB_ROOT_PASSWORD"
+        local mariadb_root_password="${!var_name}"
+        local var_name2="${service_name^^}_MARIADB_PASSWORD"
+        local mariadb_password="${!var_name2}"
 
         # Check if the environment variables are set
         if [[ -z "$mariadb_root_password" || -z "$mariadb_password" ]]; then
