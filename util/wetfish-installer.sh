@@ -24,7 +24,7 @@ fi
 # Install essential dependencies
 apt-get update
 
-REQUIRED_PACKAGES=(figlet curl git gnupg lsb-release ca-certificates)
+REQUIRED_PACKAGES=(figlet curl git gnupg lsb-release ca-certificates lolcat)
 for pkg in "${REQUIRED_PACKAGES[@]}"; do
   if ! dpkg -s "$pkg" &>/dev/null; then
     echo "Installing missing package: $pkg"
@@ -33,7 +33,7 @@ for pkg in "${REQUIRED_PACKAGES[@]}"; do
 done
 
 # Banner
-figlet "Wetfish Web Services"
+figlet "Wetfish Web Services" | lolcat
 echo "Starting setup for Wetfish production environment"
 
 # Install Docker if missing
