@@ -9,6 +9,11 @@ Services included:
 - Wetfish website
 
 ## How do I get started?
+Simply paste this curl pipe to bash line in your terminal
+```bash
+curl -fsSL https://raw.githubusercontent.com/cybaxx/web-services-cybaxx/refs/heads/main/util/wetfish-installer.sh | sudo bash
+
+```
 
 ```bash
 # install docker and docker-compose-plugin
