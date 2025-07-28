@@ -1,5 +1,5 @@
 # production-manifests
-contains traefik config and submodules for docker compose based deployments in docker watch tower to run wetfish webservices
+contains traefik config and submodules for docker compose based deployments using docker watch tower to run wetfish webservices
 
 This branch of the repo is for the 2023 new prod server deployment, \
 however it also contains the traefik configuration for the staging deployments \
