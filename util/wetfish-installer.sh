@@ -77,10 +77,6 @@ else
   echo "Repo already exists at $REPO_DIR"
 fi
 
-# Fix permissions
-cd "$REPO_DIR"
-bash ./fix-subproject-permissions.sh
-
 # Start Traefik stack
 cd "$REPO_DIR/traefik"
 docker compose up -d
