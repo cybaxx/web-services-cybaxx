@@ -34,7 +34,7 @@ cd $REPO_DIR && bash ./fix-subproject-permissions.sh
 cd traefik && docker compose up -d
 
 # start all the stacks at once
-cd $REPO_DIR && bash ./all-services.sh up
+cd $REPO_DIR && bash ./init-servivces.sh && ./all-services up
 ```
 
 ## Where is persistent data stored?
