@@ -15,6 +15,9 @@ curl -fsSL https://raw.githubusercontent.com/cybaxx/web-services-cybaxx/refs/hea
 
 ```
 
+## I don't trust curl pipe to bash
+fine set it up yourself, install docker and the docker compose plugin
+
 ```bash
 # install docker and docker-compose-plugin
 # https://docs.docker.com/engine/install/debian/
