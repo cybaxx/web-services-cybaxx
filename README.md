@@ -1,5 +1,5 @@
 # Web-services production-manifests
-contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services
+Contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services
 
 Services included:
 - Online
