@@ -67,7 +67,7 @@ REPO_DIR="/opt/production-manifests"
 
 if [[ ! -d "$REPO_DIR" ]]; then
   git clone \
-    --branch prod-2023 \
+    --branch main \
     --single-branch \
     --recursive \
     --recurse-submodules \
