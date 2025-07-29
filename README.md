@@ -36,9 +36,6 @@ Run this to install everything automatically:
 curl -fsSL https://raw.githubusercontent.com/cybaxx/web-services-cybaxx/refs/heads/main/util/wetfish-installer.sh | sudo bash
 ```
 
-```bash
-curl -fsSL https://raw.githubusercontent.com/cybaxx/web-services-cybaxx/refs/heads/main/util/wetfish-installer.sh | sudo bash
-
 ## I don't trust curl pipe to bash
 Fine set it up yourself, install docker and the docker compose plugin as a dependency, see script provided above for any additional deps.
 
