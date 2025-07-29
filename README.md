@@ -29,7 +29,7 @@
 
 ---
 
-## 🚀 Quickstart (Debian-based)
+## 🔥 Quickstart (Debian-based)
 
 Run this to install everything automatically:
 ```bash
