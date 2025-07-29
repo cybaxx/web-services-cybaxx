@@ -49,14 +49,14 @@ docker network create traefik-backend
 # clone the repo (recursively)
 cd /opt
 
-export REPO_DIR="$(cd "/opt" || exit 1; pwd)/production-manifests"
+export REPO_DIR="$(cd "/opt" || exit 1; pwd)/web-services"
 
 git clone \
   --branch $BRANCH \
   --single-branch \
   --recursive \
   --recurse-submodules \
-  https://github.com/wetfish/production-manifests.git \
+  https://github.com/wetfish/web-services.git \
   $REPO_DIR
 
 # fix various permissions
