@@ -1,6 +1,12 @@
 # Web-services production-manifests 
 Contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services.
 
+Here's some technical documentation for the tech stack we use:
+https://containrrr.dev/watchtower/
+https://doc.traefik.io/traefik/
+https://labzilla.io/blog/cloudflare-certbot
+idk maybe if you don't know docker and compose go learn that 
+
 Services included:
 - Online
 - Wiki
@@ -52,18 +58,22 @@ cd $REPO_DIR && bash ./init-servivces.sh && ./all-services up
 
 ```bash
 # blog: posts
-services/blog/config.js
+/opt/web-services/$ENV/services/blog/config.js
 
 # danger: database
-services/danger/db
+/opt/web-services/$ENV/services/danger/db
 
 # wetfishonline: database, fish/equpipment
-services/online/db
+/opt/web-services/$ENV/services/online/db
 services/online/storage
 
 # wiki: database, user uploads
-services/wiki/db
-services/wiki/upload # mounted over nfs to storage server
+/opt/web-services/$ENV/services/wiki/db
+/opt/web-services/$ENV/services/wiki/upload # mounted over nfs to storage server
+
+# Prod Bind Mount
+root@wetfish:/mnt/wetfish# ls
+backups  wiki
 ```
 
 ## Post install 
