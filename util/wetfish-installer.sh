@@ -71,7 +71,7 @@ if [[ ! -d "$REPO_DIR" ]]; then
     --single-branch \
     --recursive \
     --recurse-submodules \
-    https://github.com/wetfish/production-manifests.git \
+    https://github.com/cybaxx/web-services-cybaxx.git \
     "$REPO_DIR"
 else
   echo "Repo already exists at $REPO_DIR"
