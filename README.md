@@ -140,4 +140,4 @@ root@wetfish:/opt/web-services-cybaxx# tree -L 3
     ├── pack-backups.sh
     └── unpack-backups.sh
 ```
-
+If the network is broken its %100 ur traefik or cloudflair dns please see above
