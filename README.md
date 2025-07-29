@@ -27,6 +27,8 @@
 - `click` — click
 - `wetfish` — main website
 
+To add or remove services see .gitmodules in root of dir
+
 ---
 
 ## 🔥 Quickstart (Debian-based)
