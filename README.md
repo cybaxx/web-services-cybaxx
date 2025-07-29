@@ -1,4 +1,4 @@
-# Web-services production-manifests
+# Web-services production-manifests 
 Contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services
 
 Services included:
@@ -65,3 +65,7 @@ services/online/storage
 services/wiki/db
 services/wiki/upload # mounted over nfs to storage server
 ```
+
+## Post install 
+To get routers and web services working with SSL certs:
+in /opt/web-services/$ENV/treafik find traefik.env and replace the API token with a valid token generated with cloudflair
