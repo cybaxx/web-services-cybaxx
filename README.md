@@ -1,5 +1,5 @@
 # Web-services production-manifests 
-Contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services
+Contains traefik config and submodules for docker compose based deployments using docker watch-tower to run wetfish web-services.
 
 Services included:
 - Online
@@ -9,14 +9,14 @@ Services included:
 - Wetfish website
 
 ## How do I get started?
-Simply paste this curl pipe to bash line in your debian terminal
+Simply paste this curl pipe to bash line in your debian terminal.
 ```bash
 curl -fsSL https://raw.githubusercontent.com/cybaxx/web-services-cybaxx/refs/heads/main/util/wetfish-installer.sh | sudo bash
 
 ```
 
 ## I don't trust curl pipe to bash
-fine set it up yourself, install docker and the docker compose plugin
+Fine set it up yourself, install docker and the docker compose plugin as a dependency, see script provided above for any additional deps.
 
 ```bash
 # install docker and docker-compose-plugin
@@ -31,7 +31,7 @@ cd /opt
 export REPO_DIR="$(cd "/opt" || exit 1; pwd)/production-manifests"
 
 git clone \
-  --branch prod-2023 \
+  --branch $BRANCH \
   --single-branch \
   --recursive \
   --recurse-submodules \
