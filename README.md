@@ -1,4 +1,4 @@
-# 🚀 Web-Services Production Manifests
+# 🌊🐠 Web-Services Production Manifests
 
 > Docker Compose-based service orchestration for [Wetfish](https://wetfish.net) using [Traefik](https://doc.traefik.io/traefik/) + [Watchtower](https://containrrr.dev/watchtower/). Built for zero-downtime container updates and wildcard TLS with Cloudflare.
 
