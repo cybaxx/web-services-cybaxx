@@ -86,5 +86,4 @@ sleep 60
 
 # Start all services
 cd "$REPO_DIR"
-bash ./init-servivces.sh
-bash ./all-services up
+bash ./init-servivces.sh up
